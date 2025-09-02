@@ -396,6 +396,14 @@
                 display: block;
             }
             
+            .desktop-grid {
+                display: none !important;
+            }
+            
+            .mobile-cards {
+                display: block !important;
+            }
+            
             .esports-arena {
                 height: 200px;
             }
@@ -645,7 +653,7 @@
                     <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.4rem;">Varför Hybrid-MOBA är det optimala valet</h3>
                     
                     <!-- Desktop Layout -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;" class="comparison-table">
+                    <div class="desktop-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                         <div style="padding: 15px; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
                             <h4 style="color: #64ff64; margin-bottom: 10px;">Dubbel publik, en produkt</h4>
                             <p style="font-size: 0.9rem; line-height: 1.4;">Förenar sömlöst MOBA-kärnspelare och hockey/sportfans och skapar en mycket större adresserbar marknad.</p>
@@ -661,7 +669,7 @@
                     </div>
 
                     <!-- Mobile Cards -->
-                    <div class="comparison-cards">
+                    <div class="mobile-cards" style="display: none;">
                         <div class="comparison-card">
                             <h4 style="color: #64ff64;">Dubbel publik, en produkt</h4>
                             <p style="font-size: 0.9rem; line-height: 1.4;">Förenar sömlöst MOBA-kärnspelare och hockey/sportfans och skapar en mycket större adresserbar marknad.</p>
