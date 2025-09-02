@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project H – Hybrid Hockey MOBA Investeringspresentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            padding: 120px 40px 80px 40px;
+            display: none;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-header {
+            background: linear-gradient(90deg, #00d9ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .section-title {
+            color: #00d9ff;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #00d9ff;
+            padding-bottom: 10px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .content-block {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 153, 204, 0.1));
+            border: 2px solid #00d9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00d9ff;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+
+        .bullet-points {
+            list-style: none;
+        }
+
+        .bullet-points li {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .bullet-points li::before {
+            content: "▶";
+            color: #00d9ff;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+            font-size: 0.9rem;
+        }
+
+        .comparison-table th {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            font-weight: 600;
+        }
+
+        .comparison-table .highlight-row {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 4px solid #00d9ff;
+        }
+
+        .comparison-cards {
+            display: none;
+        }
+
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-card.highlight {
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px solid #00d9ff;
+        }
+
+        .comparison-card h4 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .comparison-card .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .comparison-card .feature {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .navigation {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(0, 217, 255, 0.2);
+            border: 2px solid #00d9ff;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: #00d9ff;
+            color: #0f1419;
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #00d9ff;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .esports-arena {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #001a2e, #003d5c);
+            border-radius: 15px;
+            border: 2px solid #00d9ff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arena-content {
+            text-align: center;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .arena-content h3 {
+            color: #00d9ff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .arena-content p {
+            font-size: 1.1rem;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .tech-highlights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 20px 15px;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 15px;
+        }
+
+        .tech-item h4 {
+            color: #00d9ff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .demo-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .demo-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 80px 15px 40px 15px;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            
+            .slide-header {
+                font-size: 2rem;
+                margin-bottom: 20px;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+            
+            .content-grid,
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                padding: 15px 10px;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            
+            .tech-highlights {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .content-block {
+                padding: 15px;
+            }
+            
+            .highlight-box {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            .bullet-points li {
+                font-size: 1rem;
+                padding-left: 25px;
+            }
+            
+            .comparison-table {
+                display: none;
+            }
+            
+            .comparison-cards {
+                display: block;
+            }
+            
+            .esports-arena {
+                height: 200px;
+            }
+            
+            .arena-content h3 {
+                font-size: 1.2rem;
+            }
+            
+            .arena-content p {
+                font-size: 1rem;
+            }
+            
+            .demo-container,
+            .video-container {
+                height: 200px;
+                margin: 15px 0;
+            }
+            
+            .navigation {
+                top: 20px;
+            }
+            
+            .nav-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .slide-counter {
+                top: 20px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 70px 10px 30px 10px;
+            }
+            
+            .slide-header {
+                font-size: 1.6rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .bullet-points li {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">7</span>
+        </div>
+
+        <!-- Slide 1: Cover -->
+        <div class="slide active">
+            <div class="slide-content">
+                <h1 class="slide-header">Project H</h1>
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h2 style="font-size: 2.5rem; color: #00d9ff; margin-bottom: 20px;">Hybrid Hockey MOBA</h2>
+                    <p style="font-size: 1.8rem; color: #cccccc;">Investeringsförslag</p>
+                </div>
+                <div class="highlight-box" style="text-align: center;">
+                    <p style="font-size: 1.3rem; margin-bottom: 15px;"><strong>Den första hybridlösningen sport–MOBA som förenar strategiskt djup med hockeyaction</strong></p>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">Vi skapar en ny kategori: Sport × Esport × Betting, och riktar oss mot den snabbt växande tävlingsspelsmarknaden med revolutionerande spelinnovation.</p>
+                </div>
+                <div style="text-align: center; margin-top: 40px; color: #888;">
+                    <p>Verkställande sammanfattning</p>
+                    <p>31 augusti 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Market Opportunity -->
+        <div class="slide">
+            <h2 class="section-title">Marknadsmöjlighet – MOBA-tillväxtdata</h2>
+            <div class="slide-content">
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-number">$92B</span>
+                        <span class="stat-label">Mobilspelsmarknaden 2024</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">$15B</span>
+                        <span class="stat-label">Mobil MOBA-marknaden 2025<br>(CAGR 10–12%)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">29%</span>
+                        <span class="stat-label">MOBA-andel inom esport</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">$2.6B</span>
+                        <span class="stat-label">Honor of Kings<br>intäkter 2024</span>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.5rem; text-align: center;">Marknadsrealitet</h3>
+                    <p style="font-size: 1.2rem; line-height: 1.6; text-align: center;">
+                        <strong>MOBA är ryggraden i esport, men teman har i åratal varit begränsade till fantasyhjältar.</strong><br>
+                        Sport­simmar har publik men misslyckas i tävlings-esport. Project H fyller detta stora marknadsgap.
+                    </p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <div class="content-block" style="text-align: center;">
+                        <h4 style="color: #64ff64; margin-bottom: 10px;">MOBA-dominans</h4>
+                        <p style="font-size: 0.9rem;">Ständigt växande kärnkategori inom esport med bevisat stark efterfrågan</p>
+                    </div>
+                    <div class="content-block" style="text-align: center;">
+                        <h4 style="color: #64ff64; margin-bottom: 10px;">Temamättnad</h4>
+                        <p style="font-size: 0.9rem;">Fantasyhjältar är övermättade; sportteman utgör en outforskad blå ocean</p>
+                    </div>
+                    <div class="content-block" style="text-align: center;">
+                        <h4 style="color: #64ff64; margin-bottom: 10px;">Korspublik</h4>
+                        <p style="font-size: 0.9rem;">Dubbel publikbas av sportfans och esporttittare</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why No One Has Done This Yet -->
+        <div class="slide">
+            <h2 class="section-title">Varför ingen har gjort detta ännu</h2>
+            <div class="slide-content">
+                <div class="two-column">
+                    <div>
+                        <div style="position: relative; width: 100%; height: 300px; border-radius: 15px; border: 2px solid #00d9ff; overflow: hidden; margin-bottom: 20px;">
+                            <iframe src="https://drive.google.com/file/d/1InGNB_unfl9VMVlyka8lrCermzgu0pUY/preview" 
+                                    width="100%" height="100%" 
+                                    style="border: none; object-fit: cover;">
+                            </iframe>
+                            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; text-align: center; color: #fff; background: rgba(0, 0, 0, 0.8); padding: 15px; border-radius: 10px;">
+                                <p style="font-size: 1.1rem; font-weight: 600;">"Esportens energi är obestridlig —<br>men ingen har applicerat den på hockey-MOBA"</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <!-- Desktop Table -->
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspekt</th>
+                                    <th>MOBA-företag</th>
+                                    <th>Sport-simulering</th>
+                                    <th><strong>Project H</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Fokus</strong></td>
+                                    <td>Fantasyteman</td>
+                                    <td>Realistisk simulering</td>
+                                    <td class="highlight-row"><strong>MOBA×Hockey</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Intäktsmodell</strong></td>
+                                    <td>F2P + kosmetik</td>
+                                    <td>Årsutgåva + samlarkort</td>
+                                    <td class="highlight-row"><strong>Esport + Betting</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resultat</strong></td>
+                                    <td>Temabegränsning</td>
+                                    <td>Misslyckas inom esport</td>
+                                    <td class="highlight-row"><strong>Blå ocean</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Mobile Cards -->
+                        <div class="comparison-cards">
+                            <div class="comparison-card">
+                                <h4>MOBA-företag</h4>
+                                <div class="feature-grid">
+                                    <div class="feature">
+                                        <span>Fokus:</span>
+                                        <span>Fantasyteman</span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Intäkter:</span>
+                                        <span>F2P + kosmetik</span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Resultat:</span>
+                                        <span>Temabegränsning</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="comparison-card">
+                                <h4>Sport-simulering</h4>
+                                <div class="feature-grid">
+                                    <div class="feature">
+                                        <span>Fokus:</span>
+                                        <span>Realistisk simulering</span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Intäkter:</span>
+                                        <span>Årsutgåva + samlarkort</span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Resultat:</span>
+                                        <span>Misslyckas inom esport</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="comparison-card highlight">
+                                <h4>Project H ⭐</h4>
+                                <div class="feature-grid">
+                                    <div class="feature">
+                                        <span>Fokus:</span>
+                                        <span><strong>MOBA×Hockey</strong></span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Intäkter:</span>
+                                        <span><strong>Esport + Betting</strong></span>
+                                    </div>
+                                    <div class="feature">
+                                        <span>Resultat:</span>
+                                        <span><strong>Blå ocean</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Why Hybrid MOBA is the Optimal Choice -->
+                <div class="highlight-box" style="margin-top: 30px;">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.4rem;">Varför Hybrid-MOBA är det optimala valet</h3>
+                    
+                    <!-- Desktop Layout -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;" class="comparison-table">
+                        <div style="padding: 15px; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                            <h4 style="color: #64ff64; margin-bottom: 10px;">Dubbel publik, en produkt</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">Förenar sömlöst MOBA-kärnspelare och hockey/sportfans och skapar en mycket större adresserbar marknad.</p>
+                        </div>
+                        <div style="padding: 15px; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                            <h4 style="color: #64ff64; margin-bottom: 10px;">Hype-först-design</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">I stället för realism finjusteras varje mekanik för att förstärka <em>känslan av att vinna</em> — stadiga mikrosegrar och explosiva höjdpunkter som håller både spelare och publik engagerade.</p>
+                        </div>
+                        <div style="padding: 15px; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                            <h4 style="color: #64ff64; margin-bottom: 10px;">Bro till betting</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">Tydliga, diskreta händelser (mål, räddningar, tacklingar, ultimates) översätts naturligt till bettingmöjligheter – den perfekta bryggan mellan esport och sportvadslagning.</p>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="comparison-cards">
+                        <div class="comparison-card">
+                            <h4 style="color: #64ff64;">Dubbel publik, en produkt</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">Förenar sömlöst MOBA-kärnspelare och hockey/sportfans och skapar en mycket större adresserbar marknad.</p>
+                        </div>
+                        <div class="comparison-card">
+                            <h4 style="color: #64ff64;">Hype-först-design</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">I stället för realism finjusteras varje mekanik för att förstärka <em>känslan av att vinna</em> — stadiga mikrosegrar och explosiva höjdpunkter som håller både spelare och publik engagerade.</p>
+                        </div>
+                        <div class="comparison-card">
+                            <h4 style="color: #64ff64;">Bro till betting</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.4;">Tydliga, diskreta händelser (mål, räddningar, tacklingar, ultimates) översätts naturligt till bettingmöjligheter – den perfekta bryggan mellan esport och sportvadslagning.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Unique Core Gameplay -->
+        <div class="slide">
+            <h2 class="section-title">Unik kärnspelmekanik</h2>
+            <div class="slide-content">
+                <div class="content-grid">
+                    <div class="content-block">
+                        <h3 style="color: #00d9ff; margin-bottom: 20px;">Kärnspel</h3>
+                        <ul class="bullet-points">
+                            <li><strong>6-mot-6 hybrida lag</strong> – perfekt tävlingsbalans</li>
+                            <li><strong>Forward / Back / Målvakt</strong> – tre tydliga taktiska roller</li>
+                            <li><strong>Färdighetsuppgraderingar</strong> – dynamiska förbättringar mitt i match</li>
+                            <li><strong>10–15-minuters matcher</strong> – snabb upplevelse optimerad för esport</li>
+                            <li><strong>Cross-platform</strong> – sömlös koppling mellan PC och mobil</li>
+                        </ul>
+                    </div>
+                    <div class="content-block">
+                        <h3 style="color: #00d9ff; margin-bottom: 20px;">Nyckeldifferentierare</h3>
+                        <ul class="bullet-points">
+                            <li><strong>MOBA-taktiskt djup</strong> – rika strategiska lager, hög tittarattraktion</li>
+                            <li><strong>Hockeytempo & fysiskhet</strong> – adrenalinspäckad action</li>
+                            <li><strong>Åskådarvänligt</strong> – skapat för tävlingssändningar</li>
+                            <li><strong>"Lätt att lära, svårt att bemästra"</strong> – perfekt inlärningskurva</li>
+                            <li><strong>Dynamiskt rollsystem</strong> – roller anpassas efter matchflödet</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; text-align: center;">Kärndesignfilosofi</h3>
+                    <p style="font-size: 1.2rem; line-height: 1.6; text-align: center;">
+                        <strong>Inte att simulera hockey, utan att omvandla hockey till MOBA-taktik + esport-rytm.</strong><br>
+                        Varje match är en strategisk duell, varje mål en lagseger, varje färdighetsaktivering ger både visuell och taktisk tillfredsställelse.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Innovation Area -->
+        <div class="slide">
+            <h2 class="section-title">Innovationsområde – Den oövervinneliga fördelen</h2>
+            <div class="slide-content">
+                <div class="content-block" style="margin-bottom: 30px;">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.4rem;">iGaming-kunnande – drivkraften</h3>
+                    <ul class="bullet-points">
+                        <li>Från iGaming har vi bemästrat <strong>hype-loopar</strong> som håller spelare fast.</li>
+                        <li>Detta kunnande driver hur vi bygger <strong>Vibe</strong> och <strong>AI-rättvisa</strong>.</li>
+                        <li>Konkurrenter utan detta DNA kan inte replikera vårt tempo av <em>vinnande ögonblick</em>.</li>
+                    </ul>
+                </div>
+
+                <div class="content-block" style="margin-bottom: 30px;">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.4rem;">Vibe Coding – känsla före data</h3>
+                    <ul class="bullet-points">
+                        <li>Prototyper utifrån <strong>spelarens känsla</strong>, inte kalkylblad.</li>
+                        <li>Varje mekanik är fintrimmad för mikrosegrar som förstärker adrenalinet.</li>
+                        <li>Inte realism — utan <strong>konstruerat momentum och känslan av att vinna</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="content-block" style="margin-bottom: 30px;">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.4rem;">AI-playtesting – världens första integritetsmotor</h3>
+                    <ul class="bullet-points">
+                        <li><strong>AI leder kärnutveckling och testning</strong> och eliminerar mänsklig bias i grunden.</li>
+                        <li>Inga bakdörrar, inga exploits, inget sätt att förfalska utfall.</li>
+                        <li><strong>Världens första AI-drivna integritetsmotor</strong> — manipulationssäker, fuskresistent och betrodd för esport och betting.</li>
+                        <li>Ett <strong>kategori-definierande genombrott</strong> som ingen konkurrent ens försökt.</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 style="color:#00d9ff; margin-bottom: 15px;">Attackställning</h3>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">
+                        Vi förenar <strong>iGaming-driven design</strong> med <strong>AI-säkrad integritet</strong>.<br>
+                        Detta är en historisk <strong>förstahandsfördel</strong> — ett marknadsfönster som bara vi kan ta.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Demo & Design Philosophy -->
+        <div class="slide">
+            <h2 class="section-title">Demo & designfilosofi</h2>
+            <div class="slide-content">
+                <div class="two-column">
+                    <div>
+                        <div class="demo-container">
+                            <iframe 
+                                src="https://drive.google.com/file/d/1qOdc6Zkh_YfxK7XbrtHHvEi5RaKlhLrD/preview" 
+                                width="100%" 
+                                height="100%" 
+                                allow="autoplay">
+                            </iframe>
+                        </div>
+                        <p style="text-align: center; font-size: 1rem; color: #cccccc; margin-top: 10px;">
+                            <strong>Live-gameplaydemo</strong> – upplev kärnmekaniken
+                        </p>
+                    </div>
+                    <div>
+                        <div class="content-block">
+                            <h3 style="color: #00d9ff; margin-bottom: 20px;">Designfilosofi</h3>
+                            <ul class="bullet-points">
+                                <li><strong>Tillgänglig komplexitet</strong> – enkla regler med djupa strategiska lager</li>
+                                <li><strong>Tävlingsintegritet</strong> – skicklighet avgör seger, noll pay-to-win</li>
+                                <li><strong>Åskådare först</strong> – dubbel upplevelse för spel och tittande</li>
+                                <li><strong>Cross-platform-enhet</strong> – sömlös koppling PC/mobil</li>
+                                <li><strong>Turneringsredo</strong> – varje match kan bli esportinnehåll</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(0, 217, 255, 0.05); border-radius: 15px; border: 1px solid rgba(0, 217, 255, 0.3);">
+                    <p style="font-size: 1rem; color: #cccccc;">
+                        <strong>Demot visar kärnloopen; hela produkten integrerar community- och turneringssystem.</strong><br>
+                        Från individuell färdighetsutveckling till lagsamarbete och globala mästerskap – ett komplett tävlingsekosystem.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Investment Opportunity & Monetization Results -->
+        <div class="slide">
+            <h2 class="section-title">Investeringsmöjlighet & intäktsresultat</h2>
+            <div class="slide-content">
+                <div class="highlight-box" style="text-align: center; margin-bottom: 30px;">
+                    <h3 style="color: #00d9ff; margin-bottom: 20px; font-size: 1.5rem;">Hybrid sport-MOBA är en helt ny kategori</h3>
+                    <p style="font-size: 1.2rem; line-height: 1.6;"><strong>Project H har ett unikt förstahandsförsprång</strong></p>
+                </div>
+
+                <!-- Monetization Results Video -->
+                <div class="video-container">
+                    <iframe 
+                        src="https://drive.google.com/file/d/1t6QBMJuRI5XHP0VN5eG4Itu_i84tj-uM/preview" 
+                        width="100%" 
+                        height="100%" 
+                        allow="autoplay">
+                    </iframe>
+                </div>
+                <p style="text-align: center; font-size: 1rem; color: #cccccc; margin-bottom: 20px;">
+                    <strong>Monetiseringsstrategi – resultat</strong> – Investeringshöjdpunkter som driver intäktspotential
+                </p>
+
+                <div class="content-grid">
+                    <div class="content-block">
+                        <h3 style="color: #00d9ff; margin-bottom: 20px;">Strategisk positionering</h3>
+                        <ul class="bullet-points">
+                            <li><strong>Marknadsposition</strong> – blå ocean, inga direkta konkurrenter</li>
+                            <li><strong>Produktunikhet</strong> – det enda lyckade fallet MOBA × Hockey</li>
+                            <li><strong>Teknisk ledning</strong> – Vibe Coding + AI-innovationsmetodik</li>
+                            <li><strong>Global expansion</strong> – cross-platform-arkitektur möjliggör snabb internationalisering</li>
+                        </ul>
+                    </div>
+                    <div class="content-block">
+                        <h3 style="color: #00d9ff; margin-bottom: 20px;">Investeringshöjdpunkter</h3>
+                        <ul class="bullet-points">
+                            <li><strong>Esport + betting</strong> – dubbel intäktsmotor</li>
+                            <li><strong>Partnerskapspotential</strong> – naturligt samarbete med sportorganisationer</li>
+                            <li><strong>Beprövat team</strong> – innovationssätt med konkurrensfördelar</li>
+                            <li><strong>Skalbar teknik</strong> – byggd för globala turneringar och mediarättigheter</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="stats-container" style="margin-top: 30px;">
+                    <div class="stat-item">
+                        <span class="stat-number">$8–12M</span>
+                        <span class="stat-label">Kapitalbehov</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">21M</span>
+                        <span class="stat-label">Utvecklingstid</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">$50M+</span>
+                        <span class="stat-label">Intäktspotential år 3</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Global</span>
+                        <span class="stat-label">Marknadsräckvidd</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px; padding: 25px; background: rgba(0, 217, 255, 0.1); border-radius: 15px; border: 2px solid #00d9ff;">
+                    <h4 style="color: #00d9ff; margin-bottom: 15px; font-size: 1.4rem;">Var med och definiera nästa gyllene esportkategori</h4>
+                    <p style="color: #cccccc; font-size: 1.1rem;">Project H är en unik möjlighet att bana väg för sport-MOBA-hybriden med betydande konkurrensfördelar och ett beprövat team.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">Föregående</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Nästa</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.getElementById('current-slide').textContent = index + 1;
+            
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (index === 0) {
+                prevBtn.style.opacity = '0.3';
+                prevBtn.style.cursor = 'not-allowed';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+            }
+            
+            if (index === totalSlides - 1) {
+                nextBtn.textContent = 'Slutför';
+                nextBtn.style.background = 'rgba(100, 255, 100, 0.2)';
+                nextBtn.style.borderColor = '#64ff64';
+            } else {
+                nextBtn.textContent = 'Nästa';
+                nextBtn.style.background = 'rgba(0, 217, 255, 0.2)';
+                nextBtn.style.borderColor = '#00d9ff';
+            }
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                showSlide(currentSlide);
+            } else if (newSlide >= totalSlides) {
+                if (confirm('Presentation slutförd! Vill du gå tillbaka till första bilden?')) {
+                    currentSlide = 0;
+                    showSlide(currentSlide);
+                }
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
